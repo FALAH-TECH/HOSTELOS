@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0A0A0F">
+<title>Hostel OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0A0A0F;--s1:#13131A;--s2:#1C1C26;--s3:#252535;
+  --b1:#2A2A3D;--b2:#3D3D58;--b3:#52527A;
+  --t1:#F0EFF8;--t2:#9998BB;--t3:#5C5B80;
+  --acc:#7C6FFF;--acc2:#A799FF;--acc3:rgba(124,111,255,0.15);
+  --grn:#4ADE80;--grn2:rgba(74,222,128,0.12);
+  --amb:#FBBF24;--amb2:rgba(251,191,36,0.12);
+  --red:#F87171;--red2:rgba(248,113,113,0.12);
+  --cyn:#22D3EE;--cyn2:rgba(34,211,238,0.12);
+  --pnk:#F472B6;--pnk2:rgba(244,114,182,0.12);
+  --r:14px;--r2:10px;--r3:22px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'DM Sans',sans-serif;color:var(--t1);display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+.header{flex-shrink:0;padding:14px 18px 10px;background:var(--bg);border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;padding-top:max(14px,env(safe-area-inset-top,14px))}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;letter-spacing:-0.5px}
+.logo span{color:var(--acc)}
+.header-date{margin-left:auto;font-size:11px;color:var(--t3);font-family:'DM Mono',monospace;text-align:right;line-height:1.4}
+
+/* ── BOTTOM NAV ── */
+.bnav{flex-shrink:0;display:flex;background:var(--s1);border-top:1px solid var(--b1);padding-bottom:max(8px,var(--safe-bottom))}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 6px;border:none;background:none;cursor:pointer;transition:all .18s;color:var(--t3)}
+.bnav-btn.active{color:var(--acc2)}
+.bnav-btn.active .bnav-icon{background:var(--acc3);color:var(--acc2)}
+.bnav-icon{width:40px;height:28px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .18s}
+.bnav-lbl{font-size:10px;font-weight:500;letter-spacing:.02em}
+
+/* ── SCROLL AREA ── */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px 14px;padding-bottom:20px;display:none;animation:fadeUp .25s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.card-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+
+/* ── QUOTE CARD ── */
+.quote-card{background:linear-gradient(135deg,#1a1a3e 0%,#0f1629 100%);border:1px solid var(--acc);border-radius:var(--r);padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.quote-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:var(--acc);opacity:.06;border-radius:50%}
+.quote-text{font-family:'DM Sans',sans-serif;font-style:italic;font-size:15px;color:var(--acc2);line-height:1.6;margin-bottom:8px}
+.quote-author{font-size:11px;color:var(--t3);font-family:'DM Mono',monospace}
+.quote-streak-msg{font-size:12px;font-weight:500;margin-top:8px;padding:6px 10px;border-radius:8px}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:14px}
+.stat-lbl{font-size:10px;color:var(--t3);font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.stat-sub{font-size:11px;color:var(--t3);margin-top:3px}
+.prog{background:var(--s3);border-radius:99px;height:5px;margin-top:8px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+
+/* ── WEEK BARS ── */
+.week-bars{display:flex;gap:5px;align-items:flex-end;height:52px;margin-bottom:4px}
+.wbar{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.wbar-fill{width:100%;border-radius:3px 3px 0 0;min-height:3px;transition:height .4s ease}
+.wbar-lbl{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace}
+
+/* ── HABIT SECTION ── */
+.habit-day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.habit-day-lbl{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.day-score-badge{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;padding:4px 12px;border-radius:99px}
+.habits-list{display:flex;flex-direction:column;gap:8px}
+.habit-item{display:flex;align-items:center;gap:12px;background:var(--s2);border-radius:var(--r2);padding:13px 14px;cursor:pointer;transition:all .15s;border:1.5px solid transparent;user-select:none;-webkit-user-select:none}
+.habit-item:active{transform:scale(.97)}
+.habit-item.done{background:var(--acc3);border-color:var(--acc)}
+.habit-check{width:26px;height:26px;border-radius:8px;border:2px solid var(--b3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:14px;color:transparent}
+.habit-item.done .habit-check{background:var(--acc);border-color:var(--acc);color:#fff}
+.habit-info{flex:1;min-width:0}
+.habit-name{font-size:14px;font-weight:500;color:var(--t1)}
+.habit-item.done .habit-name{color:var(--acc2)}
+.habit-tip{font-size:11px;color:var(--t3);margin-top:1px}
+.save-btn{width:100%;padding:15px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all .18s;margin-top:12px;letter-spacing:.02em}
+.save-btn:active{transform:scale(.98);background:var(--acc2)}
+
+/* ── HISTORY ── */
+.hist-row{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--s2);border-radius:var(--r2);margin-bottom:6px}
+.hist-date{font-family:'DM Mono',monospace;font-size:12px;color:var(--t2);min-width:52px}
+.hist-dots{display:flex;gap:3px;flex:1}
+.hist-dot{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px}
+.hist-dot.on{background:var(--acc3);color:var(--acc2)}
+.hist-dot.off{background:var(--s3)}
+.hist-score{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;padding:3px 9px;border-radius:99px;min-width:34px;text-align:center}
+
+/* ── WORKOUT ── */
+.day-selector{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.day-opt{padding:16px;border-radius:var(--r);border:2px solid var(--b1);cursor:pointer;transition:all .18s;text-align:center;user-select:none}
+.day-opt:active{transform:scale(.97)}
+.day-opt.sel-A{border-color:var(--cyn);background:var(--cyn2)}
+.day-opt.sel-B{border-color:var(--pnk);background:var(--pnk2)}
+.day-tag{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:2px}
+.day-A .day-tag{color:var(--cyn)}
+.day-B .day-tag{color:var(--pnk)}
+.day-exs{font-size:11px;color:var(--t3);line-height:1.5}
+.ex-list{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.ex-item{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--s2);border-radius:var(--r2);cursor:pointer;border:1.5px solid transparent;transition:all .15s;user-select:none}
+.ex-item:active{transform:scale(.97)}
+.ex-item.done{background:var(--grn2);border-color:var(--grn)}
+.ex-check{width:24px;height:24px;border-radius:6px;border:2px solid var(--b3);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;flex-shrink:0;transition:all .15s}
+.ex-item.done .ex-check{background:var(--grn);border-color:var(--grn);color:#fff}
+.ex-name{font-size:14px;font-weight:500}
+.ex-item.done .ex-name{color:var(--grn)}
+.ex-tag{font-size:10px;margin-left:auto;padding:2px 8px;border-radius:99px;background:var(--s3);color:var(--t3)}
+.w-score-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--s2);border-radius:var(--r2);margin-top:4px}
+.w-score-lbl{font-size:13px;color:var(--t2)}
+.w-score-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--grn)}
+
+/* ── MONEY ── */
+.budget-bar-wrap{background:var(--s3);border-radius:99px;height:10px;overflow:hidden;margin:10px 0 5px}
+.budget-bar-fill{height:100%;border-radius:99px;transition:width .5s ease}
+.money-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.money-chip{background:var(--s2);border-radius:var(--r2);padding:11px 10px;text-align:center}
+.mc-lbl{font-size:10px;color:var(--t3);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+.mc-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.exp-form{display:flex;flex-direction:column;gap:9px;margin-bottom:12px}
+.exp-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+input,select{background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--r2);color:var(--t1);font-family:'DM Sans',sans-serif;font-size:14px;padding:12px 13px;outline:none;transition:border .15s;width:100%;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--acc)}
+select option{background:var(--s2)}
+.add-btn{width:100%;padding:13px;border-radius:var(--r2);border:none;background:var(--s3);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;border:1.5px solid var(--b2)}
+.add-btn:active{transform:scale(.98);background:var(--acc);border-color:var(--acc);color:#fff}
+.exp-log{display:flex;flex-direction:column;gap:6px}
+.exp-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--s2);border-radius:var(--r2)}
+.exp-cat{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:500;white-space:nowrap}
+.exp-note{font-size:13px;color:var(--t1);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp-amt{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;white-space:nowrap}
+.exp-del{background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0}
+.exp-del:active{color:var(--red)}
+
+/* ── REVIEW ── */
+.review-form{display:flex;flex-direction:column;gap:10px}
+.form-field label{display:block;font-size:12px;color:var(--t3);margin-bottom:5px;font-weight:500}
+textarea{background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--r2);color:var(--t1);font-family:'DM Sans',sans-serif;font-size:14px;padding:12px 13px;outline:none;transition:border .15s;width:100%;resize:none;height:80px}
+textarea:focus{border-color:var(--acc)}
+.review-card{background:var(--s2);border-radius:var(--r);padding:14px;margin-bottom:10px;border:1px solid var(--b1)}
+.rv-week{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--acc2);margin-bottom:10px}
+.rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.rv-stat{background:var(--s1);border-radius:var(--r2);padding:10px 12px}
+.rv-stat-lbl{font-size:10px;color:var(--t3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.rv-stat-val{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.rv-note{font-size:12px;color:var(--t2);background:var(--s1);border-radius:var(--r2);padding:10px;line-height:1.5;margin-top:6px;border-left:2px solid var(--b2)}
+.rv-fix{font-size:12px;color:var(--acc2);background:var(--acc3);border-radius:var(--r2);padding:10px;line-height:1.5;margin-top:6px;border-left:2px solid var(--acc)}
+
+/* ── BADGES ── */
+.badge{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:500;display:inline-block}
+.b-green{background:var(--grn2);color:var(--grn)}
+.b-amber{background:var(--amb2);color:var(--amb)}
+.b-red{background:var(--red2);color:var(--red)}
+.b-acc{background:var(--acc3);color:var(--acc2)}
+.b-cyn{background:var(--cyn2);color:var(--cyn)}
+.b-pnk{background:var(--pnk2);color:var(--pnk)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s3);border:1px solid var(--b2);border-radius:var(--r2);padding:10px 20px;font-size:13px;font-weight:500;z-index:999;transition:all .28s cubic-bezier(.34,1.56,.64,1);opacity:0;pointer-events:none;white-space:nowrap;max-width:85vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:28px 16px;color:var(--t3);font-size:13px}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--b1);margin:14px 0}
+
+/* ── SECTION HDR ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-hdr-lbl{font-size:11px;color:var(--t3);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.ghost-btn{background:none;border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-size:11px;padding:4px 10px;cursor:pointer}
+.ghost-btn:active{background:var(--s2)}
+
+/* Scrollbar hidden */
+.page::-webkit-scrollbar{display:none}
+.page{scrollbar-width:none}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Hostel<span>OS</span></div>
+  <div class="header-date" id="headerDate"></div>
+</div>
+
+<div class="pages">
+
+<!-- ═══ DAILY ═══ -->
+<div class="page active" id="p-daily">
+
+  <!-- Quote -->
+  <div class="quote-card" id="quoteCard">
+    <div class="quote-text" id="quoteText"></div>
+    <div class="quote-author" id="quoteAuthor"></div>
+    <div class="quote-streak-msg" id="streakMsg"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat" style="border-color:var(--b1)">
+      <div class="stat-lbl">Today's Score</div>
+      <div class="stat-val" id="todayScore" style="color:var(--acc2)">0<span style="font-size:14px;color:var(--t3)">/9</span></div>
+      <div class="prog"><div class="prog-fill" id="todayProg" style="background:var(--acc);width:0%"></div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">🔥 Streak</div>
+      <div class="stat-val" id="streakVal" style="color:var(--amb)">0</div>
+      <div class="stat-sub">days ≥6</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">7-Day Avg</div>
+      <div class="stat-val" id="avgVal" style="color:var(--grn)">—</div>
+      <div class="stat-sub">target ≥6.0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">Consistency</div>
+      <div class="stat-val" id="consistVal" style="color:var(--cyn)">—</div>
+      <div class="stat-sub">target ≥70%</div>
+    </div>
+  </div>
+
+  <!-- Week chart -->
+  <div class="card">
+    <div class="card-title">Last 7 Days</div>
+    <div class="week-bars" id="weekBars"></div>
+  </div>
+
+  <!-- Today habits -->
+  <div class="card">
+    <div class="habit-day-header">
+      <div class="habit-day-lbl" id="todayLabel"></div>
+      <div class="day-score-badge" id="scoreBadge"></div>
+    </div>
+    <div class="habits-list" id="habitsList"></div>
+    <button class="save-btn" onclick="saveToday()">Save Today ✓</button>
+  </div>
+
+  <!-- History -->
+  <div class="card">
+    <div class="sec-hdr">
+      <div class="sec-hdr-lbl">History</div>
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+</div>
+
+<!-- ═══ WORKOUT ═══ -->
+<div class="page" id="p-workout">
+
+  <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="stat"><div class="stat-lbl">Sessions</div><div class="stat-val" id="wSess" style="color:var(--cyn)">0</div></div>
+    <div class="stat"><div class="stat-lbl">Avg Score</div><div class="stat-val" id="wAvg" style="color:var(--grn)">—</div></div>
+    <div class="stat"><div class="stat-lbl">Consistency</div><div class="stat-val" id="wCons" style="color:var(--pnk)">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Log Today's Session</div>
+    <div class="day-selector">
+      <div class="day-opt day-A" id="dOptA" onclick="pickDay('A')">
+        <div class="day-tag">A</div>
+        <div class="day-exs">Pushups<br>Floor Press<br>Squats · Plank</div>
+      </div>
+      <div class="day-opt day-B" id="dOptB" onclick="pickDay('B')">
+        <div class="day-tag">B</div>
+        <div class="day-exs">Row · Curl<br>Squats<br>Plank</div>
+      </div>
+    </div>
+    <div id="exSection" style="display:none">
+      <div class="ex-list" id="exList"></div>
+      <div class="w-score-row">
+        <span class="w-score-lbl">Session score</span>
+        <span class="w-score-val"><span id="exScore">0</span><span style="font-size:14px;color:var(--t3)">/6</span></span>
+      </div>
+      <button class="save-btn" style="background:var(--grn);margin-top:10px" onclick="saveWorkout()">Log Session ✓</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Session History</div>
+    <div id="wHistory"></div>
+  </div>
+
+</div>
+
+<!-- ═══ MONEY ═══ -->
+<div class="page" id="p-money">
+
+  <div class="card">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4px">
+      <div>
+        <div class="stat-lbl">Weekly Spend Left</div>
+        <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800" id="remainAmt">₹30</div>
+      </div>
+      <div style="text-align:right">
+        <div class="stat-lbl">Savings</div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--grn)" id="savingsAmt">₹0</div>
+      </div>
+    </div>
+    <div class="budget-bar-wrap"><div class="budget-bar-fill" id="budgetBar" style="width:0%;background:var(--acc)"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3)">
+      <span id="spentLbl">₹0 spent this week</span>
+      <span id="overspendLbl"></span>
+    </div>
+  </div>
+
+  <div class="money-chips">
+    <div class="money-chip"><div class="mc-lbl">Food</div><div class="mc-val" style="color:var(--amb)">₹160</div><div style="font-size:10px;color:var(--t3)">fixed</div></div>
+    <div class="money-chip"><div class="mc-lbl">Travel</div><div class="mc-val" style="color:var(--cyn)">₹276</div><div style="font-size:10px;color:var(--t3)">fixed</div></div>
+    <div class="money-chip"><div class="mc-lbl">Buffer</div><div class="mc-val" style="color:var(--t2)">₹14</div><div style="font-size:10px;color:var(--t3)">emergency</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Log Expense</div>
+    <div class="exp-form">
+      <div class="exp-row">
+        <div><label style="font-size:12px;color:var(--t3);display:block;margin-bottom:5px">Amount (₹)</label><input type="number" id="eAmt" placeholder="e.g. 15" inputmode="numeric"></div>
+        <div><label style="font-size:12px;color:var(--t3);display:block;margin-bottom:5px">Category</label>
+          <select id="eCat">
+            <option value="food">🍱 Food/Snack</option>
+            <option value="travel">🚌 Travel</option>
+            <option value="misc">🛒 Misc</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+      </div>
+      <div><label style="font-size:12px;color:var(--t3);display:block;margin-bottom:5px">Note (optional)</label><input type="text" id="eNote" placeholder="e.g. chai, autorickshaw..."></div>
+      <button class="add-btn" onclick="addExpense()">+ Add Expense</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-hdr">
+      <div class="sec-hdr-lbl">This Week's Log</div>
+      <button class="ghost-btn" onclick="clearWeek()">Clear Week</button>
+    </div>
+    <div class="exp-log" id="expLog"></div>
+  </div>
+
+</div>
+
+<!-- ═══ REVIEW ═══ -->
+<div class="page" id="p-review">
+
+  <div class="card">
+    <div class="card-title">Weekly Review — Fill Every Sunday</div>
+    <div class="review-form">
+      <div class="exp-row">
+        <div class="form-field"><label>Avg Score (auto)</label><input id="rv_avg" type="number" step="0.1" placeholder="auto" readonly style="color:var(--acc2)"></div>
+        <div class="form-field"><label>Study hrs / 14</label><input id="rv_study" type="number" min="0" max="14" placeholder="e.g. 10" inputmode="numeric"></div>
+      </div>
+      <div class="exp-row">
+        <div class="form-field"><label>Workout sessions / 6</label><input id="rv_wo" type="number" min="0" max="6" placeholder="e.g. 4" inputmode="numeric"></div>
+        <div class="form-field"><label>Money</label>
+          <select id="rv_money">
+            <option value="GOOD">✅ Within ₹30</option>
+            <option value="OVER">⚠️ Went over</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field"><label>Honest notes — what happened this week?</label><textarea id="rv_notes" placeholder="Be honest. No one reads this but you."></textarea></div>
+      <div class="form-field"><label>Next week: 1 specific fix only</label><textarea id="rv_fix" placeholder="e.g. Sleep by 11 PM every night, no exceptions." style="height:60px"></textarea></div>
+      <button class="save-btn" onclick="saveReview()">Save Review ✓</button>
+    </div>
+  </div>
+
+  <div class="sec-hdr" style="padding:0 2px"><div class="sec-hdr-lbl">Past Reviews</div></div>
+  <div id="reviewList"></div>
+
+</div>
+
+</div><!-- /pages -->
+
+<!-- Bottom nav -->
+<div class="bnav">
+  <button class="bnav-btn active" onclick="nav('daily',this)"><div class="bnav-icon">📅</div><div class="bnav-lbl">Daily</div></button>
+  <button class="bnav-btn" onclick="nav('workout',this)"><div class="bnav-icon">💪</div><div class="bnav-lbl">Workout</div></button>
+  <button class="bnav-btn" onclick="nav('money',this)"><div class="bnav-icon">💰</div><div class="bnav-lbl">Money</div></button>
+  <button class="bnav-btn" onclick="nav('review',this)"><div class="bnav-icon">📋</div><div class="bnav-lbl">Review</div></button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const ld = k => { try{return JSON.parse(localStorage.getItem('hos_'+k))||null}catch{return null} }
+const sv = (k,v) => localStorage.setItem('hos_'+k, JSON.stringify(v))
+
+// ── QUOTES ───────────────────────────────────────────────────────────────────
+const QUOTES = [
+  {q:"The secret of getting ahead is getting started.",a:"Mark Twain"},
+  {q:"Don't watch the clock; do what it does — keep going.",a:"Sam Levenson"},
+  {q:"Small daily improvements are the key to staggering long-term results.",a:"Unknown"},
+  {q:"You don't rise to the level of your goals. You fall to the level of your systems.",a:"James Clear"},
+  {q:"The pain of discipline is far less than the pain of regret.",a:"Unknown"},
+  {q:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},
+  {q:"It's not about perfect. It's about effort.",a:"Jillian Michaels"},
+  {q:"Discipline is choosing between what you want now and what you want most.",a:"Unknown"},
+  {q:"One day or day one. You decide.",a:"Unknown"},
+  {q:"Your future is created by what you do today, not tomorrow.",a:"Robert Kiyosaki"},
+  {q:"Success is the sum of small efforts, repeated day in and day out.",a:"Robert Collier"},
+  {q:"Wake up early. Work hard. Strike oil.",a:"J. Paul Getty"},
+  {q:"A year from now you may wish you had started today.",a:"Karen Lamb"},
+  {q:"The man who moves a mountain begins by carrying away small stones.",a:"Confucius"},
+  {q:"What you do every day matters more than what you do once in a while.",a:"Gretchen Rubin"},
+  {q:"Either you run the day or the day runs you.",a:"Jim Rohn"},
+  {q:"Motivation gets you going. Discipline keeps you growing.",a:"John C. Maxwell"},
+  {q:"Push yourself, because no one else is going to do it for you.",a:"Unknown"},
+  {q:"Great things never came from comfort zones.",a:"Unknown"},
+  {q:"Focus on progress, not perfection.",a:"Unknown"},
+  {q:"The harder you work for something, the greater you'll feel when you achieve it.",a:"Unknown"},
+  {q:"Dream it. Wish it. Do it.",a:"Unknown"},
+  {q:"Success doesn't just find you. You have to go out and get it.",a:"Unknown"},
+  {q:"Stop wishing. Start doing.",a:"Unknown"},
+  {q:"Believe you can and you're halfway there.",a:"Theodore Roosevelt"},
+  {q:"Act as if what you do makes a difference. It does.",a:"William James"},
+  {q:"Success is not final, failure is not fatal: it is the courage to continue that counts.",a:"Winston Churchill"},
+  {q:"You are never too old to set another goal or to dream a new dream.",a:"C.S. Lewis"},
+  {q:"I find that the harder I work, the more luck I seem to have.",a:"Thomas Jefferson"},
+  {q:"Don't count the days. Make the days count.",a:"Muhammad Ali"},
+];
+
+const STREAK_MSGS = [
+  s => s===0 ? {t:"Start your streak today. Day 1 begins now.",c:"var(--t3)"} :
+       s===1 ? {t:"Day 1 done. Keep going tomorrow.",c:"var(--amb)"} :
+       s<5   ? {t:`${s}-day streak. You're building something real.`,c:"var(--amb)"} :
+       s<10  ? {t:`${s} days straight. You're in the zone. 🔥`,c:"var(--grn)"} :
+       s<21  ? {t:`${s}-day streak. This is becoming who you are.`,c:"var(--grn)"} :
+               {t:`${s} DAYS. Absolute machine. Don't stop. 🏆`,c:"var(--acc2)"}
+];
+
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const HABITS = [
+  {name:"Wake by 7 AM",      tip:"Out of bed before 7:00 AM sharp"},
+  {name:"Workout",           tip:"Completed Day A or Day B session"},
+  {name:"Grooming",          tip:"Brushed + bathed + presentable"},
+  {name:"Breakfast",         tip:"Proper meal before 9:30 AM"},
+  {name:"Morning Study",     tip:"1+ focused hour before noon"},
+  {name:"Talked to someone", tip:"Real conversation with 1 person"},
+  {name:"Class Notes",       tip:"Notes taken or reviewed today"},
+  {name:"Evening Study",     tip:"1+ focused hour after 4 PM"},
+  {name:"Skill Work",        tip:"30+ min coding / project / skill"},
+];
+const EX = {
+  A:[{n:"Pushups",t:"Day A"},{n:"Floor Press",t:"Day A"},{n:"Squats",t:"A+B"},{n:"Plank",t:"A+B"},{n:"(Row)",t:"Day B skip"},{n:"(Curl)",t:"Day B skip"}],
+  B:[{n:"Row",t:"Day B"},{n:"Curl",t:"Day B"},{n:"Squats",t:"A+B"},{n:"Plank",t:"A+B"},{n:"(Pushups)",t:"Day A skip"},{n:"(Floor Press)",t:"Day A skip"}],
+};
+const EX_REAL = {A:["Pushups","Floor Press","Squats","Plank"],B:["Row","Curl","Squats","Plank"]};
+const CAT_STYLE = {food:"background:var(--amb2);color:var(--amb)",travel:"background:var(--cyn2);color:var(--cyn)",misc:"background:var(--pnk2);color:var(--pnk)",other:"background:var(--acc3);color:var(--acc2)"};
+const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` }
+const fmtKey = k => { const[y,m,d]=k.split('-'); return `${d} ${MON_SHORT[+m-1]}` }
+
+let todayState = new Array(9).fill(0);
+let selectedDay = null;
+let exDone = {};
+
+const days = () => ld('days') || {};
+const workouts = () => ld('workouts') || [];
+const expenses = () => ld('expenses') || {};
+const reviews = () => ld('reviews') || [];
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+const tKey = todayKey();
+const saved = days();
+if(saved[tKey]) todayState = [...saved[tKey]];
+
+const now = new Date();
+document.getElementById('headerDate').innerHTML = `${DAY_SHORT[now.getDay()]}, ${now.getDate()} ${MON_SHORT[now.getMonth()]}<br>${now.getFullYear()}`;
+document.getElementById('todayLabel').textContent = `${DAY_SHORT[now.getDay()]} ${now.getDate()} ${MON_SHORT[now.getMonth()]}`;
+
+// ── QUOTE ─────────────────────────────────────────────────────────────────────
+function renderQuote() {
+  const dayNum = Math.floor(Date.now() / 86400000);
+  const q = QUOTES[dayNum % QUOTES.length];
+  document.getElementById('quoteText').textContent = `"${q.q}"`;
+  document.getElementById('quoteAuthor').textContent = `— ${q.a}`;
+  const streak = calcStreak();
+  const msg = STREAK_MSGS[0](streak);
+  const el = document.getElementById('streakMsg');
+  el.textContent = msg.t;
+  el.style.color = msg.c;
+  el.style.background = 'rgba(255,255,255,0.05)';
+  el.style.borderRadius = '8px';
+  el.style.padding = '6px 10px';
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function nav(page, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('p-'+page).classList.add('active');
+  btn.classList.add('active');
+  if(page==='review') prefillReviewAvg();
+  if(page==='workout') renderWorkoutPage();
+  if(page==='money') renderMoneyPage();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// ── SCORE HELPERS ─────────────────────────────────────────────────────────────
+function scoreColor(s) { return s>=7?'var(--grn)':s>=5?'var(--amb)':'var(--red)' }
+function scoreBg(s)    { return s>=7?'var(--grn2)':s>=5?'var(--amb2)':'var(--red2)' }
+function scoreLabel(s) { return s>=7?'🏆 Excellent':s>=6?'✅ Good':s>=4?'⚠️ Okay':'❌ Try again' }
+
+function calcStreak() {
+  const d = days();
+  const keys = Object.keys(d).sort().reverse();
+  let streak = 0;
+  for(const k of keys) {
+    const sc = d[k].reduce((a,b)=>a+b,0);
+    if(sc >= 6) streak++; else break;
+  }
+  return streak;
+}
+
+// ── DAILY ─────────────────────────────────────────────────────────────────────
+function renderHabits() {
+  const sc = todayState.reduce((a,b)=>a+b,0);
+  document.getElementById('todayScore').innerHTML = `${sc}<span style="font-size:14px;color:var(--t3)">/9</span>`;
+  document.getElementById('todayProg').style.width = (sc/9*100)+'%';
+  document.getElementById('todayProg').style.background = scoreColor(sc);
+  const badge = document.getElementById('scoreBadge');
+  badge.textContent = scoreLabel(sc);
+  badge.style.background = scoreBg(sc); badge.style.color = scoreColor(sc);
+
+  document.getElementById('habitsList').innerHTML = HABITS.map((h,i)=>`
+    <div class="habit-item ${todayState[i]?'done':''}" onclick="toggleHabit(${i})">
+      <div class="habit-check">${todayState[i]?'✓':''}</div>
+      <div class="habit-info">
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-tip">${h.tip}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleHabit(i) {
+  todayState[i] = todayState[i] ? 0 : 1;
+  renderHabits();
+  // haptic if available
+  if(navigator.vibrate) navigator.vibrate(8);
+}
+
+function saveToday() {
+  const d = days();
+  d[tKey] = [...todayState];
+  sv('days', d);
+  renderDashboard();
+  renderHistory();
+  renderWeekBars();
+  renderQuote();
+  toast('✓ Day saved!');
+}
+
+function renderDashboard() {
+  const d = days();
+  const keys = Object.keys(d).sort();
+  const scores = keys.map(k=>d[k].reduce((a,b)=>a+b,0));
+  const streak = calcStreak();
+  document.getElementById('streakVal').textContent = streak;
+  const last7 = scores.slice(-7);
+  const avg = last7.length ? (last7.reduce((a,b)=>a+b,0)/last7.length) : null;
+  document.getElementById('avgVal').textContent = avg ? avg.toFixed(1) : '—';
+  const good = scores.filter(s=>s>=6).length;
+  document.getElementById('consistVal').textContent = scores.length ? (good/scores.length*100).toFixed(0)+'%' : '—';
+}
+
+function renderWeekBars() {
+  const d = days();
+  let html = '';
+  for(let i=6;i>=0;i--) {
+    const dt = new Date(); dt.setDate(dt.getDate()-i);
+    const k = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+    const sc = d[k] ? d[k].reduce((a,b)=>a+b,0) : 0;
+    const pct = sc/9*100;
+    const col = sc>=7?'var(--grn)':sc>=5?'var(--amb)':sc>0?'var(--red)':'var(--s3)';
+    html += `<div class="wbar"><div class="wbar-fill" style="height:${Math.max(pct,4)}%;background:${col}"></div><div class="wbar-lbl">${DAY_SHORT[dt.getDay()].charAt(0)}</div></div>`;
+  }
+  document.getElementById('weekBars').innerHTML = html;
+}
+
+function renderHistory() {
+  const d = days();
+  const keys = Object.keys(d).sort().reverse().filter(k=>k!==tKey).slice(0,14);
+  if(!keys.length){document.getElementById('historyList').innerHTML='<div class="empty">Save your first day to see history.</div>';return}
+  document.getElementById('historyList').innerHTML = keys.map(k=>{
+    const vals = d[k];
+    const sc = vals.reduce((a,b)=>a+b,0);
+    return `<div class="hist-row">
+      <div class="hist-date">${fmtKey(k)}</div>
+      <div class="hist-dots">${vals.map(v=>`<div class="hist-dot ${v?'on':'off'}">${v?'✓':''}</div>`).join('')}</div>
+      <div class="hist-score" style="background:${scoreBg(sc)};color:${scoreColor(sc)}">${sc}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── WORKOUT ───────────────────────────────────────────────────────────────────
+function renderWorkoutPage() {
+  const ws = workouts();
+  document.getElementById('wSess').textContent = ws.length;
+  if(ws.length) {
+    const avg = ws.reduce((a,w)=>a+w.score,0)/ws.length;
+    document.getElementById('wAvg').textContent = avg.toFixed(1);
+    const possible = ws.length*6;
+    const done = ws.reduce((a,w)=>a+w.score,0);
+    document.getElementById('wCons').textContent = (done/possible*100).toFixed(0)+'%';
+  }
+  renderWHistory();
+}
+
+function pickDay(day) {
+  selectedDay = day; exDone = {};
+  document.getElementById('dOptA').classList.toggle('sel-A', day==='A');
+  document.getElementById('dOptB').classList.toggle('sel-B', day==='B');
+  document.getElementById('exSection').style.display='block';
+  const exs = EX_REAL[day];
+  document.getElementById('exList').innerHTML = exs.map(e=>`
+    <div class="ex-item" id="ex_${e}" onclick="toggleEx('${e}')">
+      <div class="ex-check">${exDone[e]?'✓':''}</div>
+      <div class="ex-name">${e}</div>
+      <div class="ex-tag">Day ${day}</div>
+    </div>`).join('');
+  updateExScore();
+}
+
+function toggleEx(name) {
+  exDone[name] = !exDone[name];
+  const el = document.getElementById('ex_'+name);
+  el.classList.toggle('done', !!exDone[name]);
+  el.querySelector('.ex-check').textContent = exDone[name]?'✓':'';
+  if(navigator.vibrate) navigator.vibrate(8);
+  updateExScore();
+}
+
+function updateExScore() {
+  document.getElementById('exScore').textContent = Object.values(exDone).filter(Boolean).length;
+}
+
+function saveWorkout() {
+  if(!selectedDay){toast('Pick Day A or B first');return}
+  const sc = Object.values(exDone).filter(Boolean).length;
+  const ws = workouts();
+  ws.unshift({date:tKey,day:selectedDay,exs:Object.keys(exDone).filter(k=>exDone[k]),score:sc});
+  sv('workouts',ws);
+  selectedDay=null; exDone={};
+  document.getElementById('exSection').style.display='none';
+  document.getElementById('dOptA').classList.remove('sel-A');
+  document.getElementById('dOptB').classList.remove('sel-B');
+  renderWorkoutPage();
+  toast(`💪 Session logged! Score: ${sc}/6`);
+  if(navigator.vibrate) navigator.vibrate([30,10,30]);
+}
+
+function renderWHistory() {
+  const ws = workouts();
+  if(!ws.length){document.getElementById('wHistory').innerHTML='<div class="empty">No sessions logged yet.</div>';return}
+  document.getElementById('wHistory').innerHTML = ws.slice(0,10).map(w=>`
+    <div class="hist-row">
+      <div class="hist-date">${fmtKey(w.date)}</div>
+      <span class="badge ${w.day==='A'?'b-cyn':'b-pnk'}">Day ${w.day}</span>
+      <div style="flex:1;font-size:12px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 8px">${w.exs.join(', ')}</div>
+      <div class="hist-score" style="background:${scoreBg(w.score)};color:${scoreColor(w.score)}">${w.score}/6</div>
+    </div>`).join('');
+}
+
+// ── MONEY ─────────────────────────────────────────────────────────────────────
+function weekKey() {
+  const d = new Date(), day = d.getDay();
+  const diff = d.getDate() - day + (day===0?-6:1);
+  const mon = new Date(d.setDate(diff));
+  return `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,'0')}-${String(mon.getDate()).padStart(2,'0')}`;
+}
+
+function renderMoneyPage() {
+  const all = expenses(); const wk = weekKey();
+  const exps = all[wk] || [];
+  const spent = exps.reduce((a,e)=>a+Number(e.amt),0);
+  const rem = Math.max(0, 30-spent);
+  const remEl = document.getElementById('remainAmt');
+  remEl.textContent = `₹${rem}`;
+  remEl.style.color = rem<=5?'var(--red)':rem<=15?'var(--amb)':'var(--grn)';
+
+  const pct = Math.min(100, spent/30*100);
+  const bar = document.getElementById('budgetBar');
+  bar.style.width = pct+'%';
+  bar.style.background = pct>=100?'var(--red)':pct>=80?'var(--amb)':'var(--acc)';
+
+  document.getElementById('spentLbl').textContent = `₹${spent} spent this week`;
+  const of = document.getElementById('overspendLbl');
+  if(spent>30){of.textContent='⚠️ Over budget';of.style.color='var(--red)'}
+  else{of.textContent='✅ On track';of.style.color='var(--grn)'}
+
+  // Savings: count weeks since first entry
+  const allKeys = Object.keys(all).sort();
+  let weeks = 1;
+  if(allKeys.length) { const diff=(new Date()-new Date(allKeys[0]))/(7*24*3600*1000); weeks=Math.max(1,Math.ceil(diff)); }
+  document.getElementById('savingsAmt').textContent = `₹${weeks*20}`;
+
+  if(!exps.length){document.getElementById('expLog').innerHTML='<div class="empty">No expenses logged this week.</div>';return}
+  document.getElementById('expLog').innerHTML = [...exps].reverse().map((e,ri)=>{
+    const i = exps.length-1-ri;
+    return `<div class="exp-item">
+      <span class="exp-cat" style="${CAT_STYLE[e.cat]||CAT_STYLE.other}">${e.cat}</span>
+      <span class="exp-note">${e.note||'—'}</span>
+      <span class="exp-amt">₹${e.amt}</span>
+      <button class="exp-del" onclick="delExp('${wk}',${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function addExpense() {
+  const amt = Number(document.getElementById('eAmt').value);
+  if(!amt||amt<=0){toast('Enter a valid amount');return}
+  const cat = document.getElementById('eCat').value;
+  const note = document.getElementById('eNote').value;
+  const all = expenses(); const wk = weekKey();
+  if(!all[wk]) all[wk]=[];
+  all[wk].push({date:tKey,amt,cat,note});
+  sv('expenses',all);
+  document.getElementById('eAmt').value='';
+  document.getElementById('eNote').value='';
+  renderMoneyPage();
+  toast(`₹${amt} logged`);
+}
+
+function delExp(wk,i) {
+  const all = expenses();
+  if(all[wk]) all[wk].splice(i,1);
+  sv('expenses',all);
+  renderMoneyPage();
+}
+
+function clearWeek() {
+  if(!confirm('Clear all expenses for this week?')) return;
+  const all = expenses(); const wk = weekKey();
+  all[wk] = []; sv('expenses',all);
+  renderMoneyPage(); toast('Week cleared');
+}
+
+// ── REVIEW ────────────────────────────────────────────────────────────────────
+function prefillReviewAvg() {
+  const d = days();
+  const scores = Object.values(d).map(v=>v.reduce((a,b)=>a+b,0));
+  const last7 = scores.slice(-7);
+  const avg = last7.length ? (last7.reduce((a,b)=>a+b,0)/last7.length) : null;
+  document.getElementById('rv_avg').value = avg ? avg.toFixed(1) : '';
+}
+
+function saveReview() {
+  const notes = document.getElementById('rv_notes').value;
+  if(!notes){toast('Add your notes first');return}
+  const rv = reviews();
+  rv.unshift({
+    n: rv.length+1, date: tKey,
+    avg: document.getElementById('rv_avg').value,
+    study: document.getElementById('rv_study').value,
+    wo: document.getElementById('rv_wo').value,
+    money: document.getElementById('rv_money').value,
+    notes, fix: document.getElementById('rv_fix').value
+  });
+  sv('reviews',rv);
+  ['rv_notes','rv_fix','rv_study','rv_wo'].forEach(id=>document.getElementById(id).value='');
+  renderReviews(); toast('✓ Review saved!');
+}
+
+function renderReviews() {
+  const rv = reviews();
+  if(!rv.length){document.getElementById('reviewList').innerHTML='<div class="empty">No reviews yet. Fill one every Sunday.</div>';return}
+  document.getElementById('reviewList').innerHTML = rv.map(r=>{
+    const avg = parseFloat(r.avg)||0;
+    const badge = avg>=6?'b-green':avg>=4?'b-amber':'b-red';
+    const blbl = avg>=6?'On Track':avg>=4?'Warning':'Below Target';
+    return `<div class="review-card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="rv-week">Week ${r.n}</div>
+        <span class="badge ${badge}">${blbl}</span>
+        <span style="font-size:11px;color:var(--t3)">${fmtKey(r.date)}</span>
+      </div>
+      <div class="rv-grid">
+        <div class="rv-stat"><div class="rv-stat-lbl">Avg Score</div><div class="rv-stat-val" style="color:var(--acc2)">${r.avg||'—'}</div></div>
+        <div class="rv-stat"><div class="rv-stat-lbl">Study</div><div class="rv-stat-val" style="color:var(--cyn)">${r.study||'—'}/14</div></div>
+        <div class="rv-stat"><div class="rv-stat-lbl">Workouts</div><div class="rv-stat-val" style="color:var(--grn)">${r.wo||'—'}/6</div></div>
+        <div class="rv-stat"><div class="rv-stat-lbl">Money</div><div class="rv-stat-val" style="color:${r.money==='GOOD'?'var(--grn)':'var(--red)'};font-size:13px">${r.money==='GOOD'?'✅ Good':'⚠️ Over'}</div></div>
+      </div>
+      ${r.notes?`<div class="rv-note">${r.notes}</div>`:''}
+      ${r.fix?`<div class="rv-fix">→ ${r.fix}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+renderQuote();
+renderHabits();
+renderDashboard();
+renderWeekBars();
+renderHistory();
+renderReviews();
+</script>
+</body>
+</html>
